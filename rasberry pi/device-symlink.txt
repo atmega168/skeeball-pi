@@ -1,0 +1,2 @@
+nano /etc/udev/rules.d/10-local.rules
+ACTION=="add", ATTRS{idVendor}=="2341", ATTRS{idProduct}=="0043", SYMLINK+="arduino"
