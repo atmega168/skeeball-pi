@@ -62,6 +62,7 @@ public:
   }
 
 private:
+  int cols,rows,height;
   inline bool running() {
     MutexLock l(&mutex_);
     return running_;
@@ -72,11 +73,14 @@ private:
   RGBMatrix *const matrix_;
 };
 
-RGBMatrix::RGBMatrix(GPIO *io, int rows, int chained_displays)
-  : frame_(new Framebuffer(rows, 32 * chained_displays)),
+RGBMatrix::RGBMatrix(GPIO *io, int height, int rows, int cols)
+  : frame_(new Framebuffer(height, 32 * cols * rows)),
     io_(NULL), updater_(NULL) {
   Clear();
   SetGPIO(io);
+  this.cols = cols;
+  this.rows = rows;
+  this.height = height;
 }
 
 RGBMatrix::~RGBMatrix() {
@@ -109,10 +113,17 @@ bool RGBMatrix::luminance_correct() const { return frame_->luminance_correct(); 
 void RGBMatrix::UpdateScreen() { frame_->DumpToMatrix(io_); }
 
 // -- Implementation of RGBMatrix Canvas: delegation to ContentBuffer
-int RGBMatrix::width() const { return frame_->width(); }
-int RGBMatrix::height() const { return frame_->height(); }
+int RGBMatrix::width() const { return 32*this.cols }
+int RGBMatrix::height() const { return this.height*this.rows }
 void RGBMatrix::SetPixel(int x, int y,
                          uint8_t red, uint8_t green, uint8_t blue) {
+  if (x < 0 || x >= width() || y < 0 || y >= height()) return;
+    // We have up to column 64 one direction, then folding around. Lets map
+    if (y >= this.height) {
+      int r = (int)(y/this.height);
+      x =  x-(width()*r);
+      y = y%this.height;
+    }
   frame_->SetPixel(x, y, red, green, blue);
 }
 void RGBMatrix::Clear() { return frame_->Clear(); }

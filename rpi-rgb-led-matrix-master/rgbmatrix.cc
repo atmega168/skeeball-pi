@@ -12,44 +12,15 @@
 #include "led-matrix.h"
 
 using rgb_matrix::GPIO;
-//using rgb_matrix::RGBMatrix;
+using rgb_matrix::RGBMatrix;
 
 static GPIO io;
 
-class SkeeCanvas : public Canvas {
-public:
-  // This class takes over ownership of the delegatee.
-  SkeeCanvas(Canvas *delegatee) : delegatee_(delegatee) {
-    // Our assumptions of the underlying geometry:
-    assert(delegatee->height() == 32);
-    assert(delegatee->width() == 196);
-  }
-  virtual ~SkeeCanvas() { delete delegatee_; }
 
-  virtual void Clear() { delegatee_->Clear(); }
-  virtual void Fill(uint8_t red, uint8_t green, uint8_t blue) {
-    delegatee_->Fill(red, green, blue);
-  }
-  virtual int width() const { return 64; }
-  virtual int height() const { return 128; }
-  virtual void SetPixel(int x, int y,
-                        uint8_t red, uint8_t green, uint8_t blue) {
-    if (x < 0 || x >= width() || y < 0 || y >= height()) return;
-    // We have up to column 64 one direction, then folding around. Lets map
-    if (y > 31) {
-      x = 195 - x;
-      y = 63 - y;
-    }
-    delegatee_->SetPixel(x, y, red, green, blue);
-  }
-
-private:
-  Canvas *delegatee_;
-};
 
 typedef struct { // Python object for matrix
 	PyObject_HEAD
-	SkeeCanvas *matrix;
+	RGBMatrix *matrix;
 } RGBmatrixObject;
 
 // Rows & chained display values are currently both required parameters.
@@ -57,12 +28,12 @@ typedef struct { // Python object for matrix
 static PyObject *RGBmatrix_new(
   PyTypeObject *type, PyObject *arg, PyObject *kw) {
 	RGBmatrixObject *self = NULL;
-	int              rows, chain;
+	int              height, rows, cols;
 
 	if((PyTuple_Size(arg) == 2) &&
 	   PyArg_ParseTuple(arg, "II", &rows, &chain)) {
 		if((self = (RGBmatrixObject *)type->tp_alloc(type, 0))) {
-			self->matrix = new SkeeCanvas(&io, rows, chain);
+			self->matrix = new RGBMatrix(&io, height, rows, cols);
 			Py_INCREF(self);
 		}
 	}
@@ -294,7 +265,7 @@ static PyMethodDef methods[] = {
 static PyTypeObject RGBmatrixObjectType = {
 	PyObject_HEAD_INIT(NULL)
 	0,                              // ob_size (not used, always set to 0)
-	"rgbmatrix.SkeeCanvas",         // tp_name (module name, object name)
+	"rgbmatrix.RGBMatrix",         // tp_name (module name, object name)
 	sizeof(RGBmatrixObject),        // tp_basicsize
 	0,                              // tp_itemsize
 	(destructor)RGBmatrix_dealloc,  // tp_dealloc
@@ -341,7 +312,7 @@ PyMODINIT_FUNC initrgbmatrix(void) { // Module initialization function
 	  (m = Py_InitModule("rgbmatrix", methods)) &&
 	  (PyType_Ready(&RGBmatrixObjectType) >= 0)) {
 		Py_INCREF(&RGBmatrixObjectType);
-		PyModule_AddObject(m, "SkeeCanvas",
+		PyModule_AddObject(m, "RGBMatrix",
 		  (PyObject *)&RGBmatrixObjectType);
 	}
 }
