@@ -32,7 +32,7 @@ public:
   // tells many of these are daisy-chained together.
   // If "io" is not NULL, starts refreshing the screen immediately; you can
   // defer that by setting GPIO later with SetGPIO().
-  RGBMatrix(GPIO *io, int rows = 32, int chained_displays = 1);
+  RGBMatrix(GPIO *io, int rows = 32, int rows = 1, int cols = 1);
   virtual ~RGBMatrix();
 
   // Set GPIO output if it was not set already in constructor (oterwise: no-op).
