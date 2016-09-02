@@ -8,6 +8,7 @@ from rgbmatrix import Adafruit_RGBmatrix
 
 
 class Skeeball:
+	buttons = 0
 	score = 0
 	highscore = 0
 	balls = 0
@@ -42,11 +43,10 @@ class Skeeball:
 		self.draw.text((18, 30), "SKEEBALL",font=font,fill=(255,60,5))
 		self.matrix.Clear()
 		self.matrix.SetImage(self.image.im.id,0,0)
-		time.sleep(6)
-
+		time.sleep(1)
 
 	def __initSerial(self):
-		try:
+		if True:
 			self.serial = serial.Serial(
 			    port='/dev/arduino',
 			    baudrate=9600,
@@ -54,17 +54,25 @@ class Skeeball:
 			    stopbits=serial.STOPBITS_ONE,
 			    bytesize=serial.EIGHTBITS,
 			    timeout=.1,
-			    write_timeout=.1,
 			    rtscts=False,
 			    dsrdtr=False
 			)
-		except:
-			self.serial=None
+		#self.serial=None
+	
+	def __drawScore(self):	
+                font = ImageFont.truetype("/usr/share/fonts/truetype/freefont/FreeSerif.ttf", 14)
+                self.draw.rectangle([(0, 0), (96, 64)],fill=(0,0,0))
+		self.draw.text((20, 10), "Score",font=font,fill=(255,60,5))
+                self.draw.text((18, 30), str(self.score),font=font,fill=(255,60,5))
+                self.matrix.Clear()
+                self.matrix.SetImage(self.image.im.id,0,0)
 
 	def __updateButtons(self):
-		self.serial.write("B\n")
+		self.serial.write("B")
 		buttons = self.serial.read(2)
-		self.buttons = int(buttons.encode('hex'), 16)
+		if buttons != None and buttons != '':
+			print buttons.encode('hex')
+			self.buttons = int(buttons.encode('hex'), 16)
 
 	def __releaseBalls(self):
 		self.serial.write("R\n")
@@ -73,8 +81,8 @@ class Skeeball:
 		return self.buttons & button
 
 	def __start(self):
-		score = 0
-		balls = 6
+		self.score = 0
+		self.balls = 6
 		self.game_mode = self.MODE['GAME']
 		self.__releaseBalls()
 
@@ -90,21 +98,23 @@ class Skeeball:
 			self.__doGame()
 
 	def __doGame(self):
-		if balls > 0:
+		if self.balls > 0:
 			if self.__isPressed(self.BUTTON['B1000L']) or self.__isPressed(self.BUTTON['B1000R']):
-				score += 1000
+				self.score += 1000
 			if self.__isPressed(self.BUTTON['B500']):
-				score += 500
+				self.score += 500
 			if self.__isPressed(self.BUTTON['B400']):
-				score += 400
+				self.score += 400
 			if self.__isPressed(self.BUTTON['B300']):
-				score += 300
+				self.score += 300
 			if self.__isPressed(self.BUTTON['B200']):
-				score += 200
+				self.score += 200
 			if self.__isPressed(self.BUTTON['B100']):
-				score += 100
+				self.score += 100
 			if self.__isPressed(self.BUTTON['BRET']):
-				balls-=1
+				self.balls-=1
+			if self.__isPressed(self.BUTTON['SCORED']):
+				self.__drawScore()
 		else:
 			self.game_mode = self.MODE['POST']
 			self.__startPost()
@@ -113,5 +123,11 @@ class Skeeball:
 	def __startPost(self):
 		return
 
-
+	def loop(self):
+		while 1:
+			self.__update()
+			time.sleep(.2)
+		
+	
 game = Skeeball()
+game.loop()
