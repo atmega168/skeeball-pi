@@ -18,8 +18,17 @@ matrix.Fill(0x00FF00)
 time.sleep(1.0)
 matrix.Fill(0x0000FF)
 time.sleep(1.0)
-
+matrix.Fill(0x000000)
 # Show RGB test pattern (separate R, G, B color values)
+matrix.SetPixel(0,0,255,0,0)
+time.sleep(1)
+matrix.SetPixel(10,10,0,255,0)
+time.sleep(1)
+matrix.SetPixel(40,40,0,0,255)
+time.sleep(1)
+matrix.SetPixel(60,60,255,255,0)
+time.sleep(1)
+
 for b in range(16):
 	for g in range(8):
 		for r in range(8):

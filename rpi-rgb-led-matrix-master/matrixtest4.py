@@ -6,6 +6,7 @@
 # Requires rgbmatrix.so present in the same directory.
 
 import time
+import random
 from rgbmatrix import Adafruit_RGBmatrix
 
 # Rows and chain length are both required parameters:
@@ -19,6 +20,15 @@ time.sleep(1.0)
 matrix.Fill(0x0000FF)
 time.sleep(1.0)
 
+
+while 1:
+	buf = []
+	for y in range(64):
+		for x in range(96):
+			buf.extend([random.randint(0,255),random.randint(0,255),random.randint(0,255)])
+#	print len(buf)
+	matrix.SetBuffer(buf)
+	#time.sleep(0.01)
 # Show RGB test pattern (separate R, G, B color values)
 for b in range(16):
 	for g in range(8):
@@ -32,3 +42,4 @@ for b in range(16):
 
 time.sleep(10.0)
 matrix.Clear()
+

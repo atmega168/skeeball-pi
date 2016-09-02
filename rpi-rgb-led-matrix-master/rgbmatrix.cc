@@ -30,8 +30,8 @@ static PyObject *RGBmatrix_new(
 	RGBmatrixObject *self = NULL;
 	int              height, rows, cols;
 
-	if((PyTuple_Size(arg) == 2) &&
-	   PyArg_ParseTuple(arg, "II", &rows, &chain)) {
+	if((PyTuple_Size(arg) == 3) &&
+	   PyArg_ParseTuple(arg, "III", &height, &rows, &cols)) {
 		if((self = (RGBmatrixObject *)type->tp_alloc(type, 0))) {
 			self->matrix = new RGBMatrix(&io, height, rows, cols);
 			Py_INCREF(self);
@@ -265,7 +265,7 @@ static PyMethodDef methods[] = {
 static PyTypeObject RGBmatrixObjectType = {
 	PyObject_HEAD_INIT(NULL)
 	0,                              // ob_size (not used, always set to 0)
-	"rgbmatrix.RGBMatrix",         // tp_name (module name, object name)
+	"rgbmatrix.Adafruit_RGBmatrix",         // tp_name (module name, object name)
 	sizeof(RGBmatrixObject),        // tp_basicsize
 	0,                              // tp_itemsize
 	(destructor)RGBmatrix_dealloc,  // tp_dealloc
@@ -312,7 +312,7 @@ PyMODINIT_FUNC initrgbmatrix(void) { // Module initialization function
 	  (m = Py_InitModule("rgbmatrix", methods)) &&
 	  (PyType_Ready(&RGBmatrixObjectType) >= 0)) {
 		Py_INCREF(&RGBmatrixObjectType);
-		PyModule_AddObject(m, "RGBMatrix",
+		PyModule_AddObject(m, "Adafruit_RGBmatrix",
 		  (PyObject *)&RGBmatrixObjectType);
 	}
 }
