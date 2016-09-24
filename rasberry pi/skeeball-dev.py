@@ -31,6 +31,10 @@ class Skeeball:
 		'POST': 1,
 		'GAME': 2
 	}
+	FONTS = {
+		'Score': ImageFont.truetype("fonts/GameCube.ttf", 14),
+		'GameOver': ImageFont.truetype("fonts/GameCube.ttf", 20),
+	}
 
 	def __init__(self):
 		#self.__initSerial()
@@ -38,12 +42,16 @@ class Skeeball:
 		self.matrix = Adafruit_RGBmatrix(32,2,3)
 		self.image = Image.new("RGB", (96, 64))
 		self.draw  = ImageDraw.Draw(self.image)
-		font = ImageFont.truetype("/usr/share/fonts/truetype/freefont/FreeSerif.ttf", 14)
+		font = self.FONTS['Score']
 		self.draw.text((20, 10), "LOADING",font=font,fill=(255,60,5))
 		self.draw.text((18, 30), "SKEEBALL",font=font,fill=(255,60,5))
 		self.matrix.Clear()
 		self.matrix.SetImage(self.image.im.id,0,0)
-		time.sleep(1)
+		time.sleep(3)
+		self.__start()
+
+
+
 
 	def __initSerial(self):
 		if True:
@@ -62,8 +70,8 @@ class Skeeball:
 	def __drawScore(self):	
                 font = ImageFont.truetype("/usr/share/fonts/truetype/freefont/FreeSerif.ttf", 14)
                 self.draw.rectangle([(0, 0), (96, 64)],fill=(0,0,0))
-		self.draw.text((20, 10), "Score",font=font,fill=(255,60,5))
-                self.draw.text((18, 30), str(self.score),font=font,fill=(255,60,5))
+				self.draw.text((20, 10), "Score",font=font,fill=(255,20,10))
+                self.draw.text((18, 30), str(self.score),font=font,fill=(255,20,10))
                 self.matrix.Clear()
                 self.matrix.SetImage(self.image.im.id,0,0)
 
@@ -98,6 +106,9 @@ class Skeeball:
 			self.__doGame()
 
 	def __doGame(self):
+
+		self.score += 150
+		self.self.balls-=1
 		if self.balls > 0:
 			if self.__isPressed(self.BUTTON['B1000L']) or self.__isPressed(self.BUTTON['B1000R']):
 				self.score += 1000
@@ -121,13 +132,19 @@ class Skeeball:
 
 
 	def __startPost(self):
+		font=self.FONTS['GameOver']
+        self.draw.rectangle([(0, 0), (96, 64)],fill=(0,0,0))
+		self.draw.text((20, 10), "GAME OVER",font=font,fill=(255,20,10))
+        self.draw.text((18, 30), str(self.score),font=font,fill=(255,20,10))
+        self.matrix.Clear()
+        self.matrix.SetImage(self.image.im.id,0,0)
 		return
 
 	def loop(self):
 		while 1:
 			self.__update()
-			time.sleep(.2)
-		
+			#time.sleep(.2)
+			time.sleep(1)
 	
 game = Skeeball()
 game.loop()
