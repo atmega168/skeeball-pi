@@ -33,7 +33,7 @@ class Skeeball:
 	}
 
 	def __init__(self):
-		self.__initSerial()
+		#self.__initSerial()
 		self.game_mode = self.MODE['ATTRACT']
 		self.matrix = Adafruit_RGBmatrix(32,2,3)
 		self.image = Image.new("RGB", (96, 64))
@@ -87,7 +87,7 @@ class Skeeball:
 		self.__releaseBalls()
 
 	def __update(self):
-		self.__updateButtons()
+		#self.__updateButtons()
 		if self.game_mode == self.MODE['ATTRACT']:
 			if self.__isPressed(self.BUTTON['START']):
 				self.__start()
