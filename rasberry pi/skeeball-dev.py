@@ -32,8 +32,9 @@ class Skeeball:
 		'GAME': 2
 	}
 	FONTS = {
-		'Score': ImageFont.truetype("fonts/GameCube.ttf", 14),
-		'GameOver': ImageFont.truetype("fonts/GameCube.ttf", 20),
+		'Score': ImageFont.truetype("fonts/GameCube.ttf", 20),
+		'GameOver': ImageFont.truetype("fonts/GameCube.ttf", 16),
+		'Balls': ImageFont.truetype("fonts/GameCube.ttf", 16),
 	}
 
 	def __init__(self):
@@ -42,12 +43,14 @@ class Skeeball:
 		self.matrix = Adafruit_RGBmatrix(32,2,3)
 		self.image = Image.new("RGB", (96, 64))
 		self.draw  = ImageDraw.Draw(self.image)
-		font = self.FONTS['Score']
-		self.draw.text((20, 10), "LOADING",font=font,fill=(255,60,5))
-		self.draw.text((18, 30), "SKEEBALL",font=font,fill=(255,60,5))
+
+
+		image = Image.open("imgs/penis.png")
+		image.load()          # Must do this before SetImage() calls
+		matrix.Fill(0xffffff) # Fill screen to sky color
 		self.matrix.Clear()
-		self.matrix.SetImage(self.image.im.id,0,0)
-		time.sleep(3)
+		self.matrix.SetImage(image.im.id,0,0)
+		time.sleep(5)
 		self.__start()
 
 
@@ -68,10 +71,10 @@ class Skeeball:
 		#self.serial=None
 	
 	def __drawScore(self):	
-                font = ImageFont.truetype("/usr/share/fonts/truetype/freefont/FreeSerif.ttf", 14)
+                font = self.FONTS['Score']
                 self.draw.rectangle([(0, 0), (96, 64)],fill=(0,0,0))
-				self.draw.text((20, 10), "Score",font=font,fill=(255,20,10))
-                self.draw.text((18, 30), str(self.score),font=font,fill=(255,20,10))
+		self.draw.text((34, 05), "%02d" % self.balls,font=self.FONTS['Balls'],fill=(0,255,50))
+                self.draw.text((12, 25), "%04d" % self.score ,font=font,fill=(100,0,255))
                 self.matrix.Clear()
                 self.matrix.SetImage(self.image.im.id,0,0)
 
@@ -92,7 +95,7 @@ class Skeeball:
 		self.score = 0
 		self.balls = 6
 		self.game_mode = self.MODE['GAME']
-		self.__releaseBalls()
+		#self.__releaseBalls()
 
 	def __update(self):
 		#self.__updateButtons()
@@ -108,7 +111,8 @@ class Skeeball:
 	def __doGame(self):
 
 		self.score += 150
-		self.self.balls-=1
+		self.balls-=1
+ 		self.__drawScore()
 		if self.balls > 0:
 			if self.__isPressed(self.BUTTON['B1000L']) or self.__isPressed(self.BUTTON['B1000R']):
 				self.score += 1000
@@ -133,11 +137,16 @@ class Skeeball:
 
 	def __startPost(self):
 		font=self.FONTS['GameOver']
-        self.draw.rectangle([(0, 0), (96, 64)],fill=(0,0,0))
-		self.draw.text((20, 10), "GAME OVER",font=font,fill=(255,20,10))
-        self.draw.text((18, 30), str(self.score),font=font,fill=(255,20,10))
-        self.matrix.Clear()
-        self.matrix.SetImage(self.image.im.id,0,0)
+        	self.draw.rectangle([(0, 0), (96, 64)],fill=(0,0,0))
+		self.draw.text((8, 2), "GAME",font=font,fill=(255,0,0))
+		self.draw.text((14, 16), "OVER",font=font,fill=(255,0,0))
+        	self.draw.text((10,32), "%04d" % self.score,font=self.FONTS['Score'],fill=(255,200,10))
+        	self.matrix.Clear()
+        	self.matrix.SetImage(self.image.im.id,0,0)
+		time.sleep(5)
+		return
+
+	def __doPost(self):
 		return
 
 	def loop(self):
