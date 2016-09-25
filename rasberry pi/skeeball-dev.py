@@ -47,8 +47,6 @@ class Skeeball:
 
 		image = Image.open("imgs/penis.png")
 		image.load()          # Must do this before SetImage() calls
-		matrix.Fill(0xffffff) # Fill screen to sky color
-		self.matrix.Clear()
 		self.matrix.SetImage(image.im.id,0,0)
 		time.sleep(5)
 		self.__start()
